@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image"
+	"image/jpeg"
 	_ "image/jpeg"
 	"io"
 	"log"
@@ -21,7 +22,7 @@ func saveFile(src io.Reader) {
 	io.Copy(f, src)
 }
 
-func loadFile(path string) {
+func loadFileToConfig(path string) {
 	f, err := os.Open(path)
 
 	if err != nil {
@@ -41,6 +42,28 @@ func loadFile(path string) {
 	fmt.Println("横幅=" + strconv.Itoa(config.Width) + ", 縦幅=" + strconv.Itoa(config.Height))
 }
 
+func loadFileToImage(path string) {
+	f, err := os.Open(path)
+
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	i, s, err := image.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(s)
+
+	f, err = os.Create("img.jpg")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	jpeg.Encode(f, i, nil)
+}
+
 func main() {
 	var url string = "http://placekitten.com/g/640/340"
 
@@ -52,5 +75,7 @@ func main() {
 
 	saveFile(response.Body)
 
-	loadFile("save.jpg")
+	loadFileToConfig("save.jpg")
+
+	loadFileToImage("save.jpg")
 }
